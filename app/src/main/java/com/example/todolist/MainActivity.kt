@@ -20,10 +20,12 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -35,7 +37,13 @@ import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.todolist.ui.EventViewModel
 import com.example.todolist.ui.theme.TodoListTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -70,16 +78,12 @@ val todayDay: String = "30"
 
 data class Data(
     var content: String = "",
-    var year: String = "",
-    var month: String = "",
-    var day: String = "",
+    var year: String = "2024",
+    var month: String = "1",
+    var day: String = "1",
     var time: String = (year.toInt() * 10000 + month.toInt() * 100 + day.toInt()).toString(),
     var displayContent: String = ""
 )
-
-class DataViewModel: ViewModel(){
-
-}
 
 private val _uiState = MutableStateFlow(Data())
 val uiState: StateFlow<Data> = _uiState.asStateFlow()
@@ -189,9 +193,12 @@ fun setDate(
 }
 
 @Composable
-fun AddButton(modifier: Modifier = Modifier){
+fun AddButton(
+    modifier: Modifier = Modifier,
+    moveScene: () -> Unit,
+){
     Button(
-        onClick = { scene = 2 },
+        onClick = { moveScene() },
         modifier = modifier
     ) {
         Text(
@@ -203,7 +210,7 @@ fun AddButton(modifier: Modifier = Modifier){
 }
 
 fun initializeData(): Data{
-    return Data("", todayYear, todayMonth, todayDay)
+    return Data("a", todayYear, todayMonth, todayDay)
 }
 
 @Composable
@@ -249,7 +256,8 @@ fun CreateLazyColumn(
 
 @Composable
 fun MainScene(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    moveToAddScene: () -> Unit,
 ){
     val listHeight = 250.dp
     Column (
@@ -298,7 +306,8 @@ fun MainScene(
                 .padding(
                     top = 10.dp,
                     start = 300.dp
-                )
+                ),
+            moveScene = moveToAddScene
         )
     }
 }
@@ -337,11 +346,14 @@ fun EventOrNot(
 
 @Composable
 fun AddScene(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    moveToMainScene: () -> Unit,
 ){
     val data: Data = initializeData()
     Column(
         verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .background(color = Color.DarkGray)
         ){
         EditContent(
             data = data.content,
@@ -353,6 +365,7 @@ fun AddScene(
                 .height(
                     150.dp
                 )
+                .background(color = Color.LightGray)
         )
         setDate(
             data = data,
@@ -363,12 +376,13 @@ fun AddScene(
                 .weight(
                     0.3f
                 )
+                .background(color = Color.LightGray)
         )
         EventOrNot(
             modifier = Modifier
         )
         Button(
-            onClick = { scene = 1 },
+            onClick = { moveToMainScene() },
             modifier = Modifier
                 .padding(
                     start = 270.dp,
@@ -385,11 +399,44 @@ fun AddScene(
 
 @Preview(showBackground = true, showSystemUi = true, name = "my app")
 @Composable
-fun MyApp() {
-    setDisplayContent(sampleEventData)
-    setDisplayContent(sampleTodoData)
-    TodoListTheme {
-        AddScene()
-//        MainScene()
+fun MyApp(
+    viewModel: EventViewModel = viewModel(),
+    navController: NavHostController = rememberNavController()
+) {
+    NavHost(
+        navController = navController,
+        startDestination = Scenes.Main.name,
+    ){
+        composable(route = Scenes.Main.name){
+            MainScene(
+                moveToAddScene = {
+                    navController.navigate(Scenes.AddContent.name)
+                }
+            )
+        }
+        composable(route = Scenes.AddContent.name){
+            AddScene(
+                moveToMainScene = {
+                    navController.popBackStack(Scenes.Main.name, inclusive = false)
+                }
+            )
+        }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
