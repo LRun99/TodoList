@@ -1,4 +1,4 @@
-developing my todo list (with calender)
+developing my todo list (with calender),
 now developping calender part and other features
 
 # home scene sample
