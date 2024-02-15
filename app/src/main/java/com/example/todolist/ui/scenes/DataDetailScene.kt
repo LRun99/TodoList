@@ -1,6 +1,7 @@
 package com.example.todolist.ui.scenes
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +23,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,7 +35,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolist.data.Data
 import com.example.todolist.data.DataRepository
 import com.example.todolist.ui.AppViewModelProvider
+import com.example.todolist.ui.theme.BGColor
 import com.example.todolist.ui.theme.TodoListTheme
+import com.example.todolist.ui.theme.cardBGColor
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -84,6 +88,7 @@ private fun DataDetailsBody(
 ){
     Column(
         modifier = Modifier
+            .background(color = BGColor)
             .padding(16.dp)
     ){
         var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
@@ -125,20 +130,21 @@ fun DataDetails(
     modifier: Modifier = Modifier
 ){
     Card(
-        modifier = modifier,
+        modifier = modifier
     ){
         Column(
             modifier = Modifier
+                .background(cardBGColor)
                 .fillMaxWidth()
         ) {
             DataDetailComponent(
-                label = "content",
+                label = "content:",
                 dataDetail = data.content,
                 modifier = Modifier
                     .padding(16.dp)
             )
             DataDetailComponent(
-                label = "date",
+                label = "date:",
                 dataDetail = data.formatedTime(),
                 modifier = Modifier
                     .padding(16.dp)
@@ -153,10 +159,21 @@ private fun DataDetailComponent(
     dataDetail: String,
     modifier: Modifier = Modifier
 ){
-    Row(modifier = modifier){
-        Text(text = label)
-        Spacer(modifier = Modifier.weight(1f))
-        Text(text = dataDetail)
+    Row(
+        modifier = modifier
+    ){
+        Text(
+            text = label,
+            color = Color.Black,
+            modifier = Modifier
+                .weight(1f)
+        )
+        Text(
+            text = dataDetail,
+            color = Color.Black,
+            modifier = Modifier
+                .weight(2f)
+        )
     }
 }
 @Composable
@@ -219,7 +236,10 @@ data class DataDetailsUiState(
 fun ItemDetailsScreenPreview() {
     TodoListTheme {
         DataDetailsBody(DataDetailsUiState(
-            outOfStock = true, dataDetails = DataDetails(1, "cotnent", "2024","10","12")
+            outOfStock = true,
+            dataDetails = DataDetails(1, "cotnentcotnentcotnentcotnentcotnentcotnent", "2024","10","12")
         ), onDelete = {})
     }
 }
+
+
