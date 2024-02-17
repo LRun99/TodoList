@@ -4,16 +4,19 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
@@ -33,6 +37,9 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import com.example.todolist.data.Data
+import com.example.todolist.ui.theme.BGColor
+import com.example.todolist.ui.theme.TodoListTheme
+import com.example.todolist.ui.theme.cardBGColor
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -79,7 +86,10 @@ fun DataAddBody(
     Column(
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
-            .background(color = Color.DarkGray)
+            .fillMaxSize()
+            .background(
+                color = BGColor
+            )
     ){
         SetContent(
             dataDetails = dataUiState.dataDetails,
@@ -90,8 +100,7 @@ fun DataAddBody(
                 )
                 .height(
                     150.dp
-                )
-                .background(color = Color.LightGray),
+                ),
             onValueChange = onDataValueChange,
         )
         SetDate(
@@ -102,8 +111,7 @@ fun DataAddBody(
                 )
                 .weight(
                     0.3f
-                )
-                .background(color = Color.LightGray),
+                ),
             onValueChange = onDataValueChange,
         )
         Button(
@@ -113,7 +121,10 @@ fun DataAddBody(
                 .padding(
                     start = 270.dp,
                     top = 30.dp
-                )
+                ),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = cardBGColor
+            )
         ) {
             Text(
                 text = "add",
@@ -132,7 +143,7 @@ fun SetContent(
     onValueChange: (DataDetails) -> Unit = {},
     enabled: Boolean = true
 ){
-    OutlinedTextField(
+    TextField(
         value = dataDetails.content,
         onValueChange = { onValueChange(dataDetails.copy(content = it)) },
         label = {
@@ -145,6 +156,9 @@ fun SetContent(
                 start = 5.dp
             ),
         enabled = enabled,
+        colors = TextFieldDefaults.textFieldColors(
+            containerColor = cardBGColor,
+        )
     )
 }
 
@@ -162,7 +176,7 @@ fun SetDate(
                 horizontal = 25.dp
             )
     ){
-        OutlinedTextField(
+        TextField(
             value = dataDetails.year,
             onValueChange = { onValueChange(dataDetails.copy(year = it)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -177,10 +191,13 @@ fun SetDate(
                     start = 5.dp
                 ),
             enabled = enabled,
-            singleLine = true
+            singleLine = true,
+            colors = TextFieldDefaults.textFieldColors(
+                containerColor = cardBGColor,
+            )
         )
 
-        OutlinedTextField(
+        TextField(
             value = dataDetails.month,
             onValueChange = { onValueChange(dataDetails.copy(month = it)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -195,10 +212,13 @@ fun SetDate(
                     start = 5.dp
                 ),
             enabled = enabled,
-            singleLine = true
+            singleLine = true,
+            colors = TextFieldDefaults.textFieldColors(
+                containerColor = cardBGColor,
+            )
         )
 
-        OutlinedTextField(
+        TextField(
             value = dataDetails.day,
             onValueChange = { onValueChange(dataDetails.copy(day = it)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -213,7 +233,10 @@ fun SetDate(
                     start = 5.dp
                 ),
             enabled = enabled,
-            singleLine = true
+            singleLine = true,
+            colors = TextFieldDefaults.textFieldColors(
+                containerColor = cardBGColor,
+            )
         )
     }
 }
@@ -305,7 +328,15 @@ fun Data.toDataDetails(): DataDetails = DataDetails(
     time = time.toString(),
 )
 
-
+@Preview(showBackground = true, showSystemUi = true, name = "my app")
+@Composable
+fun DataAddScenePreview() {
+    TodoListTheme {
+        DataAddBody(
+            dataUiState = DataUiState(DataDetails(1, "Game", "2000", "1", "23", "20000123")),
+            onDataValueChange = {}, onSaveClick = {})
+    }
+}
 
 
 

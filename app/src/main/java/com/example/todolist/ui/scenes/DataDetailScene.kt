@@ -2,15 +2,19 @@ package com.example.todolist.ui.scenes
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -73,6 +77,7 @@ fun DataDetailsScene(
                     navigateToHome()
                 }
             },
+            navigateToEditScene = navigateToEditScene,
             modifier = Modifier
                 .padding(innerPadding)
         )
@@ -84,10 +89,12 @@ fun DataDetailsScene(
 private fun DataDetailsBody(
     dataDetailsUiState: DataDetailsUiState,
     onDelete: () -> Unit,
+    navigateToEditScene: (Int) -> Unit,
     modifier: Modifier = Modifier
 ){
     Column(
         modifier = Modifier
+            .fillMaxSize()
             .background(color = BGColor)
             .padding(16.dp)
     ){
@@ -97,28 +104,55 @@ private fun DataDetailsBody(
             modifier = Modifier
                 .fillMaxWidth()
         )
-        OutlinedButton(
-            onClick = {deleteConfirmationRequired = true},
-            shape = MaterialTheme.shapes.small,
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    top = 16.dp,
-                    bottom = 16.dp
+                    top = 8.dp
                 )
         ) {
-            Text(
-                text = "delete"
+            Spacer(
+                modifier = Modifier
+                    .weight(0.2f)
             )
-        }
-        if (deleteConfirmationRequired) {
-            DeleteConfirmationDialog(
-                onDeleteConfirm = {
-                    deleteConfirmationRequired = false
-                    onDelete()
-                },
-                onDeleteCancel = { deleteConfirmationRequired = false },
-                modifier = Modifier.padding(16.dp)
+            FilledTonalButton(
+                onClick = { navigateToEditScene(dataDetailsUiState.dataDetails.id) },
+                shape = MaterialTheme.shapes.small,
+                modifier = Modifier
+                    .weight(1f)
+            ) {
+                Text(
+                    text = "edit"
+                )
+            }
+            Spacer(
+                modifier = Modifier
+                    .weight(0.3f)
+            )
+            OutlinedButton(
+                onClick = { deleteConfirmationRequired = true },
+                shape = MaterialTheme.shapes.small,
+                modifier = Modifier
+                    .weight(1f)
+            ) {
+                Text(
+                    text = "delete"
+                )
+            }
+            if (deleteConfirmationRequired) {
+                DeleteConfirmationDialog(
+                    onDeleteConfirm = {
+                        deleteConfirmationRequired = false
+                        onDelete()
+                    },
+                    onDeleteCancel = { deleteConfirmationRequired = false },
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+            Spacer(
+                modifier = Modifier
+                    .weight(0.2f)
             )
         }
     }
@@ -238,7 +272,7 @@ fun ItemDetailsScreenPreview() {
         DataDetailsBody(DataDetailsUiState(
             outOfStock = true,
             dataDetails = DataDetails(1, "cotnentcotnentcotnentcotnentcotnentcotnent", "2024","10","12")
-        ), onDelete = {})
+        ), navigateToEditScene = {}, onDelete = {})
     }
 }
 
