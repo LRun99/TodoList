@@ -24,4 +24,13 @@ interface DataDao {
 
     @Query("SELECT * from data ORDER BY time ASC")
     fun getAllData(): Flow<List<Data>>
+
+    @Query("SELECT * from data WHERE type == 1 ORDER BY time ASC")
+    fun getTodoData(): Flow<List<Data>>
+
+    @Query("SELECT * from data WHERE type == 2 ORDER BY time ASC")
+    fun getEventData(): Flow<List<Data>>
+
+    @Query("SELECT * from data WHERE type == 3 ORDER BY time ASC")
+    fun getCompleteData(): Flow<List<Data>>
 }

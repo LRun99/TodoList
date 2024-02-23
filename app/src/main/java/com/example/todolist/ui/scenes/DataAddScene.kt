@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -24,7 +25,9 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -183,6 +186,26 @@ fun DataAddBody(
                 ),
             onValueChange = onDataValueChange,
         )
+        Row(
+            modifier = Modifier
+                .padding(
+                    horizontal = 45.dp
+                )
+                .padding(
+                    top = 5.dp
+                )
+        ) {
+            Spacer(
+                modifier = Modifier
+                    .weight(3f)
+            )
+            SetDataType(
+                dataDetails = dataUiState.dataDetails,
+                modifier = Modifier
+                    .weight(1f),
+                onValueChange = onDataValueChange
+            )
+        }
     }
 }
 
@@ -293,6 +316,59 @@ fun SetDate(
     }
 }
 
+@Composable
+fun SetDataType(
+    dataDetails: DataDetails,
+    modifier: Modifier = Modifier,
+    onValueChange: (DataDetails) -> Unit = {},
+){
+    var state by remember{ mutableStateOf(true) }
+    Column(
+        modifier = Modifier
+    ){
+        Row(
+            modifier = Modifier
+        ) {
+            RadioButton(
+                selected = state,
+                onClick = {
+                    onValueChange(dataDetails.copy(type = 1))
+                    state = true
+                },
+            )
+            Text(
+                text = "todo",
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White,
+                modifier = Modifier
+                    .padding(
+                        top = 15.dp
+                    )
+            )
+        }
+        Row(
+                modifier = Modifier
+        ) {
+            RadioButton(
+                selected = !state,
+                onClick = {
+                    onValueChange(dataDetails.copy(type = 2))
+                    state = false
+                }
+            )
+            Text(
+                text = "event",
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White,
+                modifier = Modifier
+                    .padding(
+                        top = 15.dp
+                    )
+            )
+        }
+    }
+}
+
 class DataAddViewModel(private val dataRepository: DataRepository) : ViewModel() {
 
     var dataUiState by mutableStateOf(DataUiState())
@@ -332,6 +408,7 @@ data class DataDetails(
     val month: String = "",
     val day: String = "",
     var time: String = "",
+    val type: Int = 1,
 )
 
 fun DataDetails.toData(): Data = Data(
@@ -341,6 +418,7 @@ fun DataDetails.toData(): Data = Data(
     month = month.toIntOrNull() ?: 0,
     day = day.toIntOrNull() ?: 0,
     time = time.toIntOrNull() ?: 0,
+    type = type
 )
 
 fun Data.formatedYear(): String{
@@ -357,6 +435,11 @@ fun Data.formatedDay(): String{
 
 fun Data.formatedTime(): String{
     return year.toString() + "/" + month.toString() + "/" + day.toString()
+}
+
+fun Data.displayType(): String{
+    if(type == 1) return("todo")
+    else return("event")
 }
 
 fun Data.formatedDisplayContent(): String{
@@ -378,6 +461,7 @@ fun Data.toDataDetails(): DataDetails = DataDetails(
     month = month.toString(),
     day = day.toString(),
     time = time.toString(),
+    type = type
 )
 
 @Preview(showBackground = true, showSystemUi = true, name = "my app")
@@ -385,7 +469,7 @@ fun Data.toDataDetails(): DataDetails = DataDetails(
 fun DataAddScenePreview() {
     TodoListTheme {
         DataAddBody(
-            dataUiState = DataUiState(DataDetails(1, "Game", "2000", "1", "23", "20000123")),
+            dataUiState = DataUiState(DataDetails(1, "Game", "2000", "1", "23", "20000123", 1)),
             onDataValueChange = {})
     }
 }

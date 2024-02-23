@@ -235,6 +235,12 @@ fun DataDetails(
                 modifier = Modifier
                     .padding(16.dp)
             )
+            DataDetailComponent(
+                label = "type:",
+                dataDetail =data.displayType(),
+                modifier = Modifier
+                    .padding(16.dp)
+            )
         }
     }
 }
@@ -323,7 +329,7 @@ fun ItemDetailsScreenPreview() {
     TodoListTheme {
         DataDetailsBody(DataDetailsUiState(
             outOfStock = true,
-            dataDetails = DataDetails(1, "cotnentcotnentcotnentcotnentcotnentcotnent", "2024","10","12")
+            dataDetails = DataDetails(1, "cotnentcotnentcotnentcotnentcotnentcotnent", "2024","10","12","",1)
         ), navigateToEditScene = {}, onDelete = {})
     }
 }

@@ -5,12 +5,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -61,9 +63,10 @@ fun HomeScene(
     navigateToAddData: () -> Unit,
     navigateToDataDetails: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
-    val homeUiState by viewModel.homeUiState.collectAsState()
+    val todoUiState by homeViewModel.todoUiState.collectAsState()
+    val eventUiState by homeViewModel.eventUiState.collectAsState()
 
     Scaffold(
         modifier = modifier,
@@ -81,7 +84,8 @@ fun HomeScene(
         }
     ) {innerPadding ->
         HomeBody(
-            dataList = homeUiState.dataList,
+            todoDataList = todoUiState.dataList,
+            eventDataList = eventUiState.dataList,
             onDataClick = navigateToDataDetails,
             onAddButtonClick = navigateToAddData,
             modifier = modifier
@@ -93,58 +97,73 @@ fun HomeScene(
 
 @Composable
 fun HomeBody(
-    dataList: List<Data>,
+    todoDataList: List<Data>,
+    eventDataList: List<Data>,
     onDataClick: (Int) -> Unit,
     onAddButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
 ){
-//    val listHeight = 250.dp
+    val listWeight = 10f
     Column (
         modifier = modifier
             .background(color = BGColor)
             .padding(
-                top = 100.dp
+                top = 100.dp,
+                bottom = 70.dp
             ),
     ){
-        Text(
-            text = "Todo List",
-            color = Color.LightGray,
+        Column(
             modifier = Modifier
-                .padding(
-                    start = 20.dp
-                ),
-            fontSize = 30.sp
-        )
-        DataList(
+                .weight(10f)
+        ) {
+            Text(
+                text = "Todo List",
+                color = Color.LightGray,
+                modifier = Modifier
+                    .padding(
+                        start = 20.dp
+                    ),
+                fontSize = 30.sp
+            )
+            DataList(
+                modifier = Modifier
+//                .height(listHeight)
+                    .padding(
+                        horizontal = 30.dp
+                    ),
+                dataList = todoDataList,
+                cardColor = cardBGColor,
+                dataFontSize = 20.sp,
+                onDataClick = { onDataClick(it.id) }
+            )
+        }
+        Spacer(
             modifier = Modifier
-//                .height(listHeight)
-                .padding(
-                    horizontal = 30.dp
-                ),
-            dataList = dataList,
-            cardColor = cardBGColor,
-            dataFontSize = 20.sp,
-            onDataClick = {onDataClick(it.id)}
+                .weight(1f)
         )
-//        Text(
-//            text = "List",
-//            modifier = Modifier
-//                .padding(
-//                    start = 20.dp
-//                ),
-//            fontSize = 30.sp
-//        )
-//        DataList(
-//            modifier = Modifier
-//                .height(listHeight)
-//                .padding(
-//                    horizontal = 30.dp
-//                ),
-//            dataList = dataList,
-//            cardColor = Color.Gray,
-//            dataFontSize = 20.sp,
-//            onDataClick = {onDataClick(it.id)}
-//        )
+        Column(
+            modifier = Modifier
+                .weight(10f)
+        ) {
+            Text(
+                text = "Event List",
+                modifier = Modifier
+                    .padding(
+                        start = 20.dp
+                    ),
+                fontSize = 30.sp
+            )
+            DataList(
+                modifier = Modifier
+                    .padding(
+                        horizontal = 30.dp
+                    ),
+                dataList = eventDataList,
+                cardColor = Color.Gray,
+                dataFontSize = 20.sp,
+                onDataClick = { onDataClick(it.id) }
+            )
+        }
     }
 }
 
@@ -212,8 +231,15 @@ private fun Datum(
 }
 
 class HomeViewModel(dataRepository: DataRepository) : ViewModel(){
-    val homeUiState: StateFlow<HomeUiState> =
-        dataRepository.getAlldataStream().map {HomeUiState(it)}
+    val todoUiState: StateFlow<HomeUiState> =
+        dataRepository.getAllTodoDataStream().map {HomeUiState(it)}
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = HomeUiState()
+            )
+    val eventUiState: StateFlow<HomeUiState> =
+        dataRepository.getAllEventDataStream().map {HomeUiState(it)}
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
@@ -231,9 +257,13 @@ data class HomeUiState(val dataList: List<Data> = listOf())
 fun HomeBodyPreview() {
     TodoListTheme {
         HomeBody(listOf(
-            Data(1, "Game", 2000, 1, 23, 20000123),
-            Data(2, "Pen", 2021, 4, 23, 20210423),
-            Data(3, "TV", 2023, 9, 3, 20230903)
+            Data(1, "Cording", 2000, 1, 23, 20000123,1),
+            Data(2, "ES", 2021, 4, 23, 20210423,1),
+            Data(3, "Report", 2023, 9, 3, 20230903,1)
+        ),listOf(
+            Data(1, "Game", 2000, 1, 23, 20000123,2),
+            Data(2, "Lunch", 2021, 4, 23, 20210423,2),
+            Data(3, "Shopping", 2023, 9, 3, 20230903,2)
         ), onDataClick = {}, onAddButtonClick = {})
     }
 }
