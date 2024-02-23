@@ -9,16 +9,27 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,7 +52,9 @@ import com.example.todolist.data.DataRepository
 import com.example.todolist.ui.AppViewModelProvider
 import com.example.todolist.ui.theme.BGColor
 import com.example.todolist.ui.theme.TodoListTheme
+import com.example.todolist.ui.theme.buttonBGColor
 import com.example.todolist.ui.theme.cardBGColor
+import com.example.todolist.ui.theme.disableButtonBGColor
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -67,7 +80,45 @@ fun DataDetailsScene(
     val uiState = viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     Scaffold(
-        modifier = modifier
+        modifier = modifier,
+        topBar = {
+            TopAppBar(
+                title = { Text("content detail") },
+                modifier = Modifier,
+                navigationIcon = {
+                    IconButton(
+                        onClick = navigateToHome
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "back button"
+                        )
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = {
+                    navigateToHome
+                    /* TODO */
+                },
+                shape = CircleShape,
+                containerColor = buttonBGColor,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.CheckCircle,
+                    contentDescription = null
+                )
+                Spacer(
+                    modifier = Modifier
+                        .width(5.dp)
+                )
+                Text(
+                    text = "Completed"
+                )
+            }
+        }
     ) {innerPadding ->
         DataDetailsBody(
             dataDetailsUiState = uiState.value,
@@ -93,6 +144,7 @@ private fun DataDetailsBody(
     modifier: Modifier = Modifier
 ){
     Column(
+        verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxSize()
             .background(color = BGColor)
@@ -109,26 +161,12 @@ private fun DataDetailsBody(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    top = 8.dp
+                    top = 16.dp
                 )
         ) {
             Spacer(
                 modifier = Modifier
                     .weight(0.2f)
-            )
-            FilledTonalButton(
-                onClick = { navigateToEditScene(dataDetailsUiState.dataDetails.id) },
-                shape = MaterialTheme.shapes.small,
-                modifier = Modifier
-                    .weight(1f)
-            ) {
-                Text(
-                    text = "edit"
-                )
-            }
-            Spacer(
-                modifier = Modifier
-                    .weight(0.3f)
             )
             OutlinedButton(
                 onClick = { deleteConfirmationRequired = true },
@@ -148,6 +186,20 @@ private fun DataDetailsBody(
                     },
                     onDeleteCancel = { deleteConfirmationRequired = false },
                     modifier = Modifier.padding(16.dp)
+                )
+            }
+            Spacer(
+                modifier = Modifier
+                    .weight(0.3f)
+            )
+            FilledTonalButton(
+                onClick = { navigateToEditScene(dataDetailsUiState.dataDetails.id) },
+                shape = MaterialTheme.shapes.small,
+                modifier = Modifier
+                    .weight(1f)
+            ) {
+                Text(
+                    text = "edit"
                 )
             }
             Spacer(

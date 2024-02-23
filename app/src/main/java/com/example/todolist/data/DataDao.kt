@@ -22,6 +22,6 @@ interface DataDao {
     @Query("SELECT * from data WHERE id = :id")
     fun getData(id: Int): Flow<Data>
 
-    @Query("SELECT * from data ORDER BY content ASC")
+    @Query("SELECT * from data ORDER BY time ASC")
     fun getAllData(): Flow<List<Data>>
 }

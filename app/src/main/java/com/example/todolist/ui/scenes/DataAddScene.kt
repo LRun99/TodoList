@@ -4,19 +4,32 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,7 +52,9 @@ import java.text.NumberFormat
 import com.example.todolist.data.Data
 import com.example.todolist.ui.theme.BGColor
 import com.example.todolist.ui.theme.TodoListTheme
+import com.example.todolist.ui.theme.buttonBGColor
 import com.example.todolist.ui.theme.cardBGColor
+import com.example.todolist.ui.theme.disableButtonBGColor
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -56,19 +71,74 @@ fun DataAddScene(
     viewModel: DataAddViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ){
     val coroutineScope = rememberCoroutineScope()
+    val dataUiState = viewModel.dataUiState
     Scaffold(
-        modifier = modifier
+        modifier = modifier,
+        topBar = {
+            TopAppBar(
+                title = { Text("add content") },
+                modifier = Modifier,
+                navigationIcon = {
+                    IconButton(
+                        onClick = navigateToHome
+                        ) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "back button"
+                        )
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            if(dataUiState.isEntryValid) {
+                ExtendedFloatingActionButton(
+                    onClick = {
+                            coroutineScope.launch {
+                                viewModel.setTime(viewModel.dataUiState.dataDetails)
+                                viewModel.saveData()
+                                navigateToHome()
+                            }
+                        },
+                    shape = CircleShape,
+                    containerColor = buttonBGColor,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Create,
+                        contentDescription = null
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .width(5.dp)
+                    )
+                    Text(
+                        text = "Create"
+                    )
+                }
+            }else{
+                ExtendedFloatingActionButton(
+                    onClick = {},
+                    shape = CircleShape,
+                    containerColor = disableButtonBGColor,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Warning,
+                        contentDescription = null
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .width(5.dp)
+                    )
+                    Text(
+                        text = "Fill All"
+                    )
+                }
+            }
+        }
     ) {innerPadding ->
         DataAddBody(
             dataUiState = viewModel.dataUiState,
             onDataValueChange = viewModel::updateUiState,
-            onSaveClick = {
-                coroutineScope.launch {
-                    viewModel.setTime(viewModel.dataUiState.dataDetails)
-                    viewModel.saveData()
-                    navigateToHome()
-                }
-            },
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxWidth(),
@@ -80,7 +150,6 @@ fun DataAddScene(
 fun DataAddBody(
     dataUiState: DataUiState,
     onDataValueChange: (DataDetails) -> Unit,
-    onSaveClick: () -> Unit,
     modifier: Modifier = Modifier,
 ){
     Column(
@@ -114,23 +183,6 @@ fun DataAddBody(
                 ),
             onValueChange = onDataValueChange,
         )
-        Button(
-            onClick = onSaveClick,
-            enabled = dataUiState.isEntryValid,
-            modifier = Modifier
-                .padding(
-                    start = 270.dp,
-                    top = 30.dp
-                ),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = cardBGColor
-            )
-        ) {
-            Text(
-                text = "add",
-                fontSize = 30.sp,
-            )
-        }
     }
 }
 
@@ -257,7 +309,7 @@ class DataAddViewModel(private val dataRepository: DataRepository) : ViewModel()
     }
 
     fun setTime(uiState: DataDetails = dataUiState.dataDetails){
-        uiState.time = (uiState.year.toInt() * 10000 + uiState.year.toInt() * 100 + uiState.day.toInt()).toString()
+        uiState.time = (uiState.year.toInt() * 10000 + uiState.month.toInt() * 100 + uiState.day.toInt()).toString()
     }
 
     suspend fun saveData(){
@@ -334,7 +386,7 @@ fun DataAddScenePreview() {
     TodoListTheme {
         DataAddBody(
             dataUiState = DataUiState(DataDetails(1, "Game", "2000", "1", "23", "20000123")),
-            onDataValueChange = {}, onSaveClick = {})
+            onDataValueChange = {})
     }
 }
 

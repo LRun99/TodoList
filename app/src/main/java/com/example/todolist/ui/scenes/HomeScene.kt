@@ -11,14 +11,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -59,7 +66,19 @@ fun HomeScene(
     val homeUiState by viewModel.homeUiState.collectAsState()
 
     Scaffold(
-        modifier = modifier
+        modifier = modifier,
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = navigateToAddData,
+                shape = CircleShape,
+                containerColor = buttonBGColor
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null
+                )
+            }
+        }
     ) {innerPadding ->
         HomeBody(
             dataList = homeUiState.dataList,
@@ -126,36 +145,7 @@ fun HomeBody(
 //            dataFontSize = 20.sp,
 //            onDataClick = {onDataClick(it.id)}
 //        )
-        AddButton(
-            modifier = Modifier
-                .padding(
-                    top = 10.dp,
-                    start = 300.dp
-                ),
-            onAddButtonClick = onAddButtonClick
-        )
     }
-}
-
-@Composable
-fun AddButton(
-    modifier: Modifier = Modifier,
-    onAddButtonClick: () -> Unit
-){
-    Button(
-        onClick = { onAddButtonClick() },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = buttonBGColor
-        ),
-        modifier = modifier
-    ) {
-        Text(
-            text = "+",
-            color = Color.LightGray,
-            fontSize = 40.sp
-        )
-    }
-
 }
 
 @Composable
@@ -197,17 +187,25 @@ private fun Datum(
     ) {
         Row(
             modifier = modifier
-                .fillMaxWidth()
-                .padding(8.dp),
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = datum.formatedDisplayContent(),
-                fontSize = dataFontSize
+                text = datum.content,
+                fontSize = dataFontSize,
+                color = Color.Black,
+                maxLines = 1,
+                modifier = modifier
+                    .weight(6f)
+                    .padding(8.dp)
             )
             Text(
                 text = datum.formatedTime(),
                 fontSize = dataFontSize,
+                color = Color.Black,
+                modifier = modifier
+                    .weight(4f)
+                    .padding(8.dp)
             )
         }
     }
